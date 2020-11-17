@@ -1,4 +1,4 @@
-package vn.winds.basefucn;
+package vn.kubet.blockchain;
 
 import com.facebook.react.ReactActivity;
 
