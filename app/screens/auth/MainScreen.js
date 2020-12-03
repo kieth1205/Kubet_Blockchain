@@ -19,16 +19,21 @@ import AsyncStorage from "@react-native-community/async-storage";
 import AppNavigator from "@app/navigation/AppNavigator";
 import NavigationUtil from "@app/navigation/NavigationUtil";
 import codePush from "react-native-code-push";
+import { TextInput } from "react-native";
+import { colors } from "@app/constants/Theme";
+import { ActivityIndicator } from "react-native";
 const { width, height } = Dimensions.get("window");
 const scale = width / 414;
 
-class App extends Component {
+export default class MainScreen extends Component {
+  static navigationOptions = {
+    header: null
+  };
   state = {
     isLoading: true,
     isError: false,
     data: {}
   };
-
   componentDidMount = async () => {
     try {
       const response = await axios.get("http://103.207.38.161:3000/list");
@@ -83,30 +88,7 @@ class App extends Component {
       </View>
     );
   };
-  codePushStatusDidChange(status) {
-    // console.log("Codepush status : ", status);
-  }
-
-  codePushDownloadDidProgress(progress) {
-    // console.log(
-    //   progress.receivedBytes + " of " + progress.totalBytes + " received."
-    // );
-  }
-
   render() {
-    return (
-      <ImageBackground
-        style={{ flex: 1 }}
-        source={R.images.stock}
-        children={
-          <AppNavigator
-            ref={navigatorRef =>
-              NavigationUtil.setTopLevelNavigator(navigatorRef)
-            }
-          />
-        }
-      />
-    );
     const { isLoading, isError, data } = this.state;
     if (isLoading) {
       return <Loading />;
@@ -199,16 +181,3 @@ const styles = StyleSheet.create({
     marginBottom: 20 * scale
   }
 });
-
-let codePushOptions = {
-  checkFrequency: codePush.CheckFrequency.MANUAL
-  // installMode: codePush.InstallMode.IMMEDIATE
-  // rollbackRetryOptions: {
-  //   delayInHours: 12,
-  //   maxRetryAttempts: 1,
-  // },
-};
-const MyApp = codePush(codePushOptions)(App);
-
-export default MyApp;
-//appcenter codepush release-react -a Apps-Windsoft/KUBET_ANDROID -d Production

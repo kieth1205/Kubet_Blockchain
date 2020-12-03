@@ -1,87 +1,166 @@
-import React, { Component } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { LoginButton, AccessToken, LoginManager } from 'react-native-fbsdk';
-import NavigationUtil from '../../navigation/NavigationUtil';
-import { GoogleSignin , statusCodes} from '@react-native-community/google-signin';
-GoogleSignin.configure();
-//  GoogleSignin.configure({
-//             scopes: ['https://www.googleapis.com/auth/drive.readonly'], // what API you want to access on behalf of the user, default is email and profile
-//             webClientId: '<FROM DEVELOPER CONSOLE>', // client ID of type WEB for your server (needed to verify user ID and offline access)
-//             offlineAccess: true, // if you want to access Google API on behalf of the user FROM YOUR SERVER
-//             hostedDomain: '', // specifies a hosted domain restriction
-//             loginHint: '', // [iOS] The user's ID, or email address, to be prefilled in the authentication UI if possible. [See docs here](https://developers.google.com/identity/sign-in/ios/api/interface_g_i_d_sign_in.html#a0a68c7504c31ab0b728432565f6e33fd)
-//             forceConsentPrompt: true, // [Android] if you want to show the authorization prompt at each login.
-//             accountName: '', // [Android] specifies an account name on the device that should be used
-//             // iosClientId: '<FROM DEVELOPER CONSOLE>', // [iOS] optional, if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
-//         });
+import React, { Component } from "react";
+import {
+  View,
+  Text,
+  Dimensions,
+  StyleSheet,
+  Linking,
+  TouchableOpacity,
+  ImageBackground
+} from "react-native";
+import { VerticalCategories } from "@app/components/customFlatlist";
+import FastImage from "react-native-fast-image";
+import reactotron from "reactotron-react-native";
+import R from "@app/assets/R";
+import RNHeader from "@app/components/WHeader";
+import axios from "axios";
+import Loading from "@app/components/Loading";
+import AsyncStorage from "@react-native-community/async-storage";
+import AppNavigator from "@app/navigation/AppNavigator";
+import NavigationUtil from "@app/navigation/NavigationUtil";
+import codePush from "react-native-code-push";
+import { TextInput } from "react-native";
+import { colors } from "@app/constants/Theme";
+import { ActivityIndicator } from "react-native";
+const { width, height } = Dimensions.get("window");
+const scale = width / 414;
 export default class LoginScreen extends Component {
+  static navigationOptions = {
+    header: null
+  };
+  state = {
+    isLoading: false
+  };
 
-    // Somewhere in your code
-    _ggLogin = async () => {
-        try {
-            await GoogleSignin.hasPlayServices();
-            const userInfo = await GoogleSignin.signIn();
-            this.setState({ userInfo });
-            console.log(userInfo)
-            NavigationUtil.navigate("Main")
+  renderHeader = () => {
+    return (
+      <View>
+        <ImageBackground
+          resizeMode="contain"
+          style={styles.imgBanner}
+          source={R.images.img_banner}
+        />
+      </View>
+    );
+  };
+  render() {
+    return (
+      <View>
+        {this.renderHeader()}
+        <View
+          style={{
+            marginHorizontal: 18
+          }}
+          children={
+            <>
+              <TextInput
+                style={{
+                  borderWidth: 0.5,
+                  borderRadius: 10,
+                  paddingLeft: 12
+                }}
+                placeholder="Tài khoản"
+              />
+              <TextInput
+                style={{
+                  borderWidth: 0.5,
+                  borderRadius: 10,
+                  paddingLeft: 12,
+                  marginTop: 20
+                }}
+                secureTextEntry
+                placeholder="Mật khẩu"
+              />
 
-        } catch (error) {
-            console.log(error)
-            if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-                // user cancelled the login flow
-            } else if (error.code === statusCodes.IN_PROGRESS) {
-                // operation (e.g. sign in) is in progress already
-            } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-                // play services not available or outdated
-            } else {
-                // some other error happened
-            }
-        }
-    };
-
-    _fbLogin() {
-        LoginManager.logInWithPermissions(["public_profile"]).then(
-            function (result) {
-                if (result.isCancelled) {
-                    console.log("Login cancelled");
-                } else {
-                    AccessToken.getCurrentAccessToken().then(
-                        (data) => {
-                            console.log(data.accessToken.toString())
-                            NavigationUtil.navigate("Main")
-                        }
-                    )
+              <TouchableOpacity
+                disabled={this.state.isLoading}
+                style={{
+                  backgroundColor: colors.primaryDark,
+                  marginTop: 20,
+                  paddingVertical: 15,
+                  alignItems: "center",
+                  borderRadius: 10,
+                  flexDirection: "row"
+                }}
+                onPress={() => {
+                  this.setState(
+                    {
+                      isLoading: true
+                    },
+                    () => {
+                      setTimeout(() => {
+                        this.setState({ isLoading: false }, () => {
+                          alert("Sai tài khoản hoặc mật khẩu");
+                        });
+                      }, 1000);
+                    }
+                  );
+                }}
+                children={
+                  <>
+                    <Text
+                      style={{
+                        fontSize: 16,
+                        fontWeight: "bold",
+                        color: "white",
+                        flex: 1,
+                        textAlign: "center"
+                      }}
+                      children="Đăng nhập"
+                    />
+                    {this.state.isLoading && (
+                      <ActivityIndicator
+                        color="white"
+                        style={{ marginRight: 10 }}
+                      />
+                    )}
+                  </>
                 }
-            },
-            function (error) {
-                console.log("Login fail with error: " + error);
-            }
-        );
-    }
-    render() {
-        return (
-            <View style={{
-                flex: 1,
-                justifyContent: 'center',
-                alignItems: 'center',
-            }}>
-                <TouchableOpacity
-                    onPress={() => {
-                        this._fbLogin()
-                    }}>
-                    <Text> Facebook Login </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={{
-                        marginTop: 50
-                    }}
-                    onPress={() => {
-                        this._ggLogin()
-                    }}>
-                    <Text> Google Login </Text>
-                </TouchableOpacity>
-
-            </View>
-        );
-    }
+              />
+            </>
+          }
+        />
+      </View>
+    );
+  }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "white"
+  },
+  imgBanner: {
+    height: 220 * scale,
+    marginVertical: 20 * scale
+  },
+  itemView: {
+    width: width / 2,
+    borderRadius: 10 * scale
+  },
+  buttonView: {
+    marginRight: 40,
+    alignSelf: "flex-end",
+    marginTop: 20,
+    borderRadius: 5,
+    flexDirection: "column"
+  },
+  buttonStyle: {
+    justifyContent: "center",
+    alignItems: "center",
+    height: 30,
+    paddingHorizontal: 10,
+    width: 110,
+    borderRadius: 8,
+    marginBottom: 10,
+    backgroundColor: "orange"
+  },
+  buttonText: {
+    fontWeight: "bold",
+    color: "white"
+  },
+  imgItem: {
+    height: 200 * scale,
+    marginBottom: 20 * scale
+  }
+});

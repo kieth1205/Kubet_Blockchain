@@ -1,4 +1,4 @@
-package vn.kubet.blockchain;
+package com.kubet.blockchain;
 
 import android.app.Application;
 import android.content.Context;

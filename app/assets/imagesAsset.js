@@ -9,6 +9,7 @@ const images = {
     img_interest: require("./images/img_interest.png"),
     img_play_tutorial: require("./images/img_play_tutorial.png"),
     img_sale: require("./images/img_sale.png"),
-    img_zalo_support: require("./images/img_zalo_support.png")
+    img_zalo_support: require("./images/img_zalo_support.png"),
+    stock: require("./images/stock.png")
     }
 export default images
